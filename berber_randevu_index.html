@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Deneme Berber - Randevu</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f3f3;color:#181818}
+.wrap{max-width:650px;margin:auto;padding:24px 16px}
+.hero{text-align:center;padding:20px}
+.card{background:white;border-radius:20px;padding:22px;box-shadow:0 8px 25px #0002}
+label{display:block;font-weight:bold;margin:16px 0 7px}
+select,input{width:100%;padding:14px;border:1px solid #ccc;border-radius:12px;font-size:16px}
+
+.times{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:9px
+}
+
+.time{
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    background:white;
+    cursor:pointer
+}
+
+.time.active{
+    background:#181818;
+    color:white
+}
+
+.time:disabled{
+    background:#ddd;
+    color:#888;
+    cursor:not-allowed
+}
+
+.submit{
+    width:100%;
+    padding:16px;
+    margin-top:22px;
+    border:0;
+    border-radius:14px;
+    background:#181818;
+    color:white;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer
+}
+
+#result{
+    display:none;
+    margin-top:18px;
+    padding:15px;
+    border-radius:12px;
+    background:#eaf7ec
+}
+
+.note{
+    text-align:center;
+    font-size:12px;
+    opacity:.6;
+    margin-top:16px
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<div class="hero">
+<div style="font-size:48px">💈</div>
+<h1>Deneme Berber</h1>
+<p>Online Randevu</p>
+</div>
+
+<div class="card">
+
+<label>Hizmet</label>
+<select id="service">
+<option>Saç Kesimi — 400 ₺</option>
+<option>Sakal Tıraşı — 200 ₺</option>
+<option>Saç + Sakal — 550 ₺</option>
+<option>Çocuk Saç Kesimi — 300 ₺</option>
+</select>
+
+<label>Berber</label>
+<select id="barber">
+<option>Ahmet</option>
+<option>Mehmet</option>
+<option>Farketmez</option>
+</select>
+
+<label>Tarih</label>
+<input id="date" type="date">
+
+<label>Saat</label>
+
+<div class="times">
+<button type="button" class="time" data-saat="10:00">10:00</button>
+<button type="button" class="time" data-saat="11:00">11:00</button>
+<button type="button" class="time" data-saat="12:00">12:00</button>
+<button type="button" class="time" data-saat="14:00">14:00</button>
+<button type="button" class="time" data-saat="15:00">15:00</button>
+<button type="button" class="time" data-saat="16:00">16:00</button>
+<button type="button" class="time" data-saat="17:00">17:00</button>
+<button type="button" class="time" data-saat="18:00">18:00</button>
+<button type="button" class="time" data-saat="19:00">19:00</button>
+</div>
+
+<label>Ad Soyad</label>
+<input id="name" placeholder="Adınızı yazın">
+
+<label>Telefon</label>
+<input id="phone" type="tel" placeholder="05xx xxx xx xx">
+
+<button class="submit" type="button" onclick="book()">
+Randevu Oluştur
+</button>
+
+<div id="result"></div>
+
+<div class="note">
+Randevunuz sisteme kaydedilir.
+</div>
+
+</div>
+</div>
+
+<script>
+
+let secilenSaat = "";
+
+document.querySelectorAll(".time").forEach(btn => {
+
+    btn.addEventListener("click", function(){
+
+        if(btn.disabled) return;
+
+        document.querySelectorAll(".time").forEach(x => {
+            x.classList.remove("active");
+        });
+
+        btn.classList.add("active");
+        secilenSaat = btn.dataset.saat;
+    });
+
+});
+
+
+async function doluSaatleriGetir(){
+
+    const berber = document.getElementById("barber").value;
+    const tarih = document.getElementById("date").value;
+
+    secilenSaat = "";
+
+    document.querySelectorAll(".time").forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove("active");
+        btn.textContent = btn.dataset.saat;
+    });
+
+    if(!berber || !tarih){
+        return;
+    }
+
+    try{
+
+        const cevap = await fetch(
+            "/api/dolu-saatler?berber=" +
+            encodeURIComponent(berber) +
+            "&tarih=" +
+            encodeURIComponent(tarih)
+        );
+
+        const doluSaatler = await cevap.json();
+
+        document.querySelectorAll(".time").forEach(btn => {
+
+            if(doluSaatler.includes(btn.dataset.saat)){
+                btn.disabled = true;
+                btn.textContent = btn.dataset.saat + " - DOLU";
+            }
+
+        });
+
+    }catch(hata){
+        console.error("Dolu saatler alınamadı:", hata);
+    }
+}
+
+
+document.getElementById("barber").addEventListener(
+    "change",
+    doluSaatleriGetir
+);
+
+document.getElementById("date").addEventListener(
+    "change",
+    doluSaatleriGetir
+);
+
+
+async function book(){
+
+    const ad = document.getElementById("name").value.trim();
+    const telefon = document.getElementById("phone").value.trim();
+    const berber = document.getElementById("barber").value;
+    const hizmet = document.getElementById("service").value;
+    const tarih = document.getElementById("date").value;
+
+    if(!ad || !telefon || !berber || !hizmet || !tarih || !secilenSaat){
+        alert("Lütfen tüm bilgileri doldurun.");
+        return;
+    }
+
+    try{
+
+        const cevap = await fetch("/api/randevu", {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                ad:ad,
+                telefon:telefon,
+                berber:berber,
+                hizmet:hizmet,
+                tarih:tarih,
+                saat:secilenSaat
+            })
+        });
+
+        const veri = await cevap.json();
+
+        if(!cevap.ok){
+            alert(veri.hata || "Randevu kaydedilemedi.");
+            await doluSaatleriGetir();
+            return;
+        }
+
+        const sonuc = document.getElementById("result");
+
+        sonuc.style.display="block";
+
+        sonuc.innerHTML =
+            "<b>Randevunuz oluşturuldu ✓</b><br><br>" +
+            ad + "<br>" +
+            hizmet + "<br>" +
+            "Berber: " + berber + "<br>" +
+            tarih + " — " + secilenSaat;
+
+        alert("Randevu başarıyla kaydedildi!");
+
+        await doluSaatleriGetir();
+
+    }catch(hata){
+
+        console.error(hata);
+        alert("Sunucuya bağlanılamadı.");
+
+    }
+}
+
+</script>
+
+</body>
+</html>
