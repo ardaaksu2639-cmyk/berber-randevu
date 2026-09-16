@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory, session, redirect
 import sqlite3
+import json
 
 app = Flask(__name__)
 app.secret_key = "berber-gizli-anahtar-2026"
@@ -9,6 +10,11 @@ def db():
     conn = sqlite3.connect("randevular.db")
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def ayarlari_oku():
+    with open("ayarlar.json", "r", encoding="utf-8") as dosya:
+        return json.load(dosya)
 
 
 def tablo_olustur():
@@ -45,14 +51,23 @@ def tablo_olustur():
     conn.close()
 
 
-# ÖNEMLİ:
-# Render / Gunicorn uygulamayı açtığında da tablo oluşturulsun.
 tablo_olustur()
 
 
 @app.route("/")
 def ana_sayfa():
     return send_from_directory(".", "berber_randevu_index.html")
+
+
+@app.route("/api/ayarlar", methods=["GET"])
+def ayarlar():
+    try:
+        return jsonify(ayarlari_oku())
+    except Exception as hata:
+        return jsonify({
+            "hata": "Ayarlar okunamadı",
+            "detay": str(hata)
+        }), 500
 
 
 @app.route("/giris", methods=["GET", "POST"])
@@ -232,9 +247,7 @@ def randevu_sil(randevu_id):
 
 @app.route("/cikis")
 def cikis():
-
     session.clear()
-
     return redirect("/giris")
 
 
