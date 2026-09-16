@@ -3,40 +3,88 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Deneme Berber - Randevu</title>
 
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f3f3f3;color:#181818}
-.wrap{max-width:650px;margin:auto;padding:24px 16px}
-.hero{text-align:center;padding:20px}
-.card{background:white;border-radius:20px;padding:22px;box-shadow:0 8px 25px #0002}
-label{display:block;font-weight:bold;margin:16px 0 7px}
-select,input{width:100%;padding:14px;border:1px solid #ccc;border-radius:12px;font-size:16px}
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f3f3f3;
+    color:#181818;
+}
+
+.wrap{
+    max-width:650px;
+    margin:auto;
+    padding:24px 16px 50px;
+}
+
+.hero{
+    text-align:center;
+    padding:20px;
+}
+
+.hero h1{
+    margin:8px 0;
+}
+
+.hero p{
+    color:#666;
+    margin:0;
+}
+
+.card{
+    background:white;
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 8px 25px #0002;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    margin:16px 0 7px;
+}
+
+select,
+input{
+    width:100%;
+    padding:14px;
+    border:1px solid #ccc;
+    border-radius:12px;
+    font-size:16px;
+    background:white;
+}
 
 .times{
     display:grid;
     grid-template-columns:repeat(3,1fr);
-    gap:9px
+    gap:9px;
 }
 
 .time{
-    padding:12px;
+    padding:12px 5px;
     border:1px solid #ccc;
     border-radius:10px;
     background:white;
-    cursor:pointer
+    cursor:pointer;
+    font-size:15px;
 }
 
 .time.active{
     background:#181818;
-    color:white
+    color:white;
 }
 
 .time:disabled{
-    background:#ddd;
-    color:#888;
-    cursor:not-allowed
+    background:#eee;
+    color:#999;
+    cursor:not-allowed;
 }
 
 .submit{
@@ -49,22 +97,72 @@ select,input{width:100%;padding:14px;border:1px solid #ccc;border-radius:12px;fo
     color:white;
     font-size:17px;
     font-weight:bold;
-    cursor:pointer
+    cursor:pointer;
+}
+
+.submit:hover{
+    opacity:.9;
 }
 
 #result{
     display:none;
-    margin-top:18px;
-    padding:15px;
-    border-radius:12px;
-    background:#eaf7ec
+    margin-top:22px;
+    padding:22px;
+    border-radius:16px;
+    background:#eef9f0;
+    border:1px solid #b9dfc0;
+}
+
+.onay-baslik{
+    text-align:center;
+    font-size:21px;
+    font-weight:bold;
+    margin-bottom:18px;
+}
+
+.onay-satir{
+    padding:8px 0;
+    border-bottom:1px solid #d8eadb;
+}
+
+.onay-satir:last-child{
+    border-bottom:0;
+}
+
+.onay-etiket{
+    font-size:13px;
+    color:#666;
+    margin-bottom:3px;
+}
+
+.onay-deger{
+    font-weight:bold;
 }
 
 .note{
     text-align:center;
     font-size:12px;
     opacity:.6;
-    margin-top:16px
+    margin-top:16px;
+}
+
+@media(max-width:450px){
+
+    .wrap{
+        padding:15px 12px 35px;
+    }
+
+    .card{
+        padding:18px;
+    }
+
+    .times{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .time{
+        font-size:14px;
+    }
 }
 </style>
 </head>
@@ -74,26 +172,26 @@ select,input{width:100%;padding:14px;border:1px solid #ccc;border-radius:12px;fo
 <div class="wrap">
 
 <div class="hero">
-<div style="font-size:48px">💈</div>
-<h1>Deneme Berber</h1>
-<p>Online Randevu</p>
+    <div style="font-size:48px">💈</div>
+    <h1>Deneme Berber</h1>
+    <p>Online Randevu</p>
 </div>
 
 <div class="card">
 
 <label>Hizmet</label>
 <select id="service">
-<option>Saç Kesimi — 400 ₺</option>
-<option>Sakal Tıraşı — 200 ₺</option>
-<option>Saç + Sakal — 550 ₺</option>
-<option>Çocuk Saç Kesimi — 300 ₺</option>
+    <option>Saç Kesimi — 400 ₺</option>
+    <option>Sakal Tıraşı — 200 ₺</option>
+    <option>Saç + Sakal — 550 ₺</option>
+    <option>Çocuk Saç Kesimi — 300 ₺</option>
 </select>
 
 <label>Berber</label>
 <select id="barber">
-<option>Ahmet</option>
-<option>Mehmet</option>
-<option>Farketmez</option>
+    <option>Ahmet</option>
+    <option>Mehmet</option>
+    <option>Farketmez</option>
 </select>
 
 <label>Tarih</label>
@@ -102,31 +200,31 @@ select,input{width:100%;padding:14px;border:1px solid #ccc;border-radius:12px;fo
 <label>Saat</label>
 
 <div class="times">
-<button type="button" class="time" data-saat="10:00">10:00</button>
-<button type="button" class="time" data-saat="11:00">11:00</button>
-<button type="button" class="time" data-saat="12:00">12:00</button>
-<button type="button" class="time" data-saat="14:00">14:00</button>
-<button type="button" class="time" data-saat="15:00">15:00</button>
-<button type="button" class="time" data-saat="16:00">16:00</button>
-<button type="button" class="time" data-saat="17:00">17:00</button>
-<button type="button" class="time" data-saat="18:00">18:00</button>
-<button type="button" class="time" data-saat="19:00">19:00</button>
+    <button type="button" class="time" data-saat="10:00">10:00</button>
+    <button type="button" class="time" data-saat="11:00">11:00</button>
+    <button type="button" class="time" data-saat="12:00">12:00</button>
+    <button type="button" class="time" data-saat="14:00">14:00</button>
+    <button type="button" class="time" data-saat="15:00">15:00</button>
+    <button type="button" class="time" data-saat="16:00">16:00</button>
+    <button type="button" class="time" data-saat="17:00">17:00</button>
+    <button type="button" class="time" data-saat="18:00">18:00</button>
+    <button type="button" class="time" data-saat="19:00">19:00</button>
 </div>
 
 <label>Ad Soyad</label>
-<input id="name" placeholder="Adınızı yazın">
+<input id="name" placeholder="Adınızı ve soyadınızı yazın">
 
 <label>Telefon</label>
 <input id="phone" type="tel" placeholder="05xx xxx xx xx">
 
 <button class="submit" type="button" onclick="book()">
-Randevu Oluştur
+    Randevu Oluştur
 </button>
 
 <div id="result"></div>
 
 <div class="note">
-Randevunuz sisteme kaydedilir.
+    Randevunuz güvenli şekilde sisteme kaydedilir.
 </div>
 
 </div>
@@ -136,11 +234,17 @@ Randevunuz sisteme kaydedilir.
 
 let secilenSaat = "";
 
+const bugun = new Date().toISOString().split("T")[0];
+document.getElementById("date").min = bugun;
+
+
 document.querySelectorAll(".time").forEach(btn => {
 
     btn.addEventListener("click", function(){
 
-        if(btn.disabled) return;
+        if(btn.disabled){
+            return;
+        }
 
         document.querySelectorAll(".time").forEach(x => {
             x.classList.remove("active");
@@ -191,7 +295,12 @@ async function doluSaatleriGetir(){
         });
 
     }catch(hata){
-        console.error("Dolu saatler alınamadı:", hata);
+
+        console.error(
+            "Dolu saatler alınamadı:",
+            hata
+        );
+
     }
 }
 
@@ -209,64 +318,130 @@ document.getElementById("date").addEventListener(
 
 async function book(){
 
-    const ad = document.getElementById("name").value.trim();
-    const telefon = document.getElementById("phone").value.trim();
-    const berber = document.getElementById("barber").value;
-    const hizmet = document.getElementById("service").value;
-    const tarih = document.getElementById("date").value;
+    const ad =
+        document.getElementById("name").value.trim();
 
-    if(!ad || !telefon || !berber || !hizmet || !tarih || !secilenSaat){
+    const telefon =
+        document.getElementById("phone").value.trim();
+
+    const berber =
+        document.getElementById("barber").value;
+
+    const hizmet =
+        document.getElementById("service").value;
+
+    const tarih =
+        document.getElementById("date").value;
+
+    if(
+        !ad ||
+        !telefon ||
+        !berber ||
+        !hizmet ||
+        !tarih ||
+        !secilenSaat
+    ){
         alert("Lütfen tüm bilgileri doldurun.");
         return;
     }
 
+    const randevuSaati = secilenSaat;
+
     try{
 
-        const cevap = await fetch("/api/randevu", {
+        const cevap = await fetch(
+            "/api/randevu",
+            {
+                method:"POST",
 
-            method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
 
-            headers:{
-                "Content-Type":"application/json"
-            },
-
-            body:JSON.stringify({
-                ad:ad,
-                telefon:telefon,
-                berber:berber,
-                hizmet:hizmet,
-                tarih:tarih,
-                saat:secilenSaat
-            })
-        });
+                body:JSON.stringify({
+                    ad:ad,
+                    telefon:telefon,
+                    berber:berber,
+                    hizmet:hizmet,
+                    tarih:tarih,
+                    saat:randevuSaati
+                })
+            }
+        );
 
         const veri = await cevap.json();
 
         if(!cevap.ok){
-            alert(veri.hata || "Randevu kaydedilemedi.");
+
+            alert(
+                veri.hata ||
+                "Randevu kaydedilemedi."
+            );
+
             await doluSaatleriGetir();
             return;
         }
 
-        const sonuc = document.getElementById("result");
+        const sonuc =
+            document.getElementById("result");
 
-        sonuc.style.display="block";
+        sonuc.style.display = "block";
 
-        sonuc.innerHTML =
-            "<b>Randevunuz oluşturuldu ✓</b><br><br>" +
-            ad + "<br>" +
-            hizmet + "<br>" +
-            "Berber: " + berber + "<br>" +
-            tarih + " — " + secilenSaat;
+        sonuc.innerHTML = `
+            <div class="onay-baslik">
+                ✅ Randevunuz Oluşturuldu
+            </div>
 
-        alert("Randevu başarıyla kaydedildi!");
+            <div class="onay-satir">
+                <div class="onay-etiket">
+                    Ad Soyad
+                </div>
+                <div class="onay-deger">
+                    ${ad}
+                </div>
+            </div>
+
+            <div class="onay-satir">
+                <div class="onay-etiket">
+                    Hizmet
+                </div>
+                <div class="onay-deger">
+                    ${hizmet}
+                </div>
+            </div>
+
+            <div class="onay-satir">
+                <div class="onay-etiket">
+                    Berber
+                </div>
+                <div class="onay-deger">
+                    ${berber}
+                </div>
+            </div>
+
+            <div class="onay-satir">
+                <div class="onay-etiket">
+                    Tarih ve Saat
+                </div>
+                <div class="onay-deger">
+                    ${tarih} — ${randevuSaati}
+                </div>
+            </div>
+        `;
+
+        sonuc.scrollIntoView({
+            behavior:"smooth"
+        });
 
         await doluSaatleriGetir();
 
     }catch(hata){
 
         console.error(hata);
-        alert("Sunucuya bağlanılamadı.");
+
+        alert(
+            "Sunucuya bağlanılamadı."
+        );
 
     }
 }
