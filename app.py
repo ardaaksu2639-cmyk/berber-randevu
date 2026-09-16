@@ -32,13 +32,22 @@ def tablo_olustur():
     ]
 
     if "berber" not in sutunlar:
-        conn.execute("ALTER TABLE randevular ADD COLUMN berber TEXT")
+        conn.execute(
+            "ALTER TABLE randevular ADD COLUMN berber TEXT"
+        )
 
     if "hizmet" not in sutunlar:
-        conn.execute("ALTER TABLE randevular ADD COLUMN hizmet TEXT")
+        conn.execute(
+            "ALTER TABLE randevular ADD COLUMN hizmet TEXT"
+        )
 
     conn.commit()
     conn.close()
+
+
+# ÖNEMLİ:
+# Render / Gunicorn uygulamayı açtığında da tablo oluşturulsun.
+tablo_olustur()
 
 
 @app.route("/")
@@ -49,17 +58,14 @@ def ana_sayfa():
 @app.route("/giris", methods=["GET", "POST"])
 def giris():
 
-    hata = ""
-
     if request.method == "POST":
+
         kullanici = request.form.get("kullanici")
         sifre = request.form.get("sifre")
 
         if kullanici == "admin" and sifre == "1234":
             session["giris_yapildi"] = True
             return redirect("/panel")
-
-        hata = "Kullanıcı adı veya şifre yanlış."
 
     return send_from_directory(".", "berber_giris.html")
 
@@ -77,7 +83,9 @@ def panel():
 def randevular():
 
     if not session.get("giris_yapildi"):
-        return jsonify({"hata": "Yetkisiz erişim"}), 401
+        return jsonify({
+            "hata": "Yetkisiz erişim"
+        }), 401
 
     conn = db()
 
@@ -88,7 +96,9 @@ def randevular():
 
     conn.close()
 
-    return jsonify([dict(x) for x in kayitlar])
+    return jsonify([
+        dict(x) for x in kayitlar
+    ])
 
 
 @app.route("/api/dolu-saatler", methods=["GET"])
@@ -103,13 +113,16 @@ def dolu_saatler():
     conn = db()
 
     kayitlar = conn.execute("""
-        SELECT saat FROM randevular
+        SELECT saat
+        FROM randevular
         WHERE berber = ? AND tarih = ?
     """, (berber, tarih)).fetchall()
 
     conn.close()
 
-    return jsonify([row["saat"] for row in kayitlar])
+    return jsonify([
+        row["saat"] for row in kayitlar
+    ])
 
 
 @app.route("/api/randevu", methods=["POST"])
@@ -118,7 +131,9 @@ def randevu_ekle():
     veri = request.get_json()
 
     if not veri:
-        return jsonify({"hata": "Bilgiler alınamadı"}), 400
+        return jsonify({
+            "hata": "Bilgiler alınamadı"
+        }), 400
 
     ad = veri.get("ad") or veri.get("name")
     telefon = veri.get("telefon") or veri.get("phone")
@@ -127,18 +142,31 @@ def randevu_ekle():
     tarih = veri.get("tarih")
     saat = veri.get("saat")
 
-    if not all([ad, telefon, berber, hizmet, tarih, saat]):
-        return jsonify({"hata": "Tüm alanları doldurun"}), 400
+    if not all([
+        ad,
+        telefon,
+        berber,
+        hizmet,
+        tarih,
+        saat
+    ]):
+        return jsonify({
+            "hata": "Tüm alanları doldurun"
+        }), 400
 
     conn = db()
 
     mevcut = conn.execute("""
-        SELECT id FROM randevular
-        WHERE berber = ? AND tarih = ? AND saat = ?
+        SELECT id
+        FROM randevular
+        WHERE berber = ?
+        AND tarih = ?
+        AND saat = ?
     """, (berber, tarih, saat)).fetchone()
 
     if mevcut:
         conn.close()
+
         return jsonify({
             "hata": "Bu berber bu tarih ve saatte dolu"
         }), 409
@@ -147,7 +175,14 @@ def randevu_ekle():
         INSERT INTO randevular
         (ad, telefon, berber, hizmet, tarih, saat)
         VALUES (?, ?, ?, ?, ?, ?)
-    """, (ad, telefon, berber, hizmet, tarih, saat))
+    """, (
+        ad,
+        telefon,
+        berber,
+        hizmet,
+        tarih,
+        saat
+    ))
 
     conn.commit()
     conn.close()
@@ -157,11 +192,16 @@ def randevu_ekle():
     })
 
 
-@app.route("/api/randevu/<int:randevu_id>", methods=["DELETE"])
+@app.route(
+    "/api/randevu/<int:randevu_id>",
+    methods=["DELETE"]
+)
 def randevu_sil(randevu_id):
 
     if not session.get("giris_yapildi"):
-        return jsonify({"hata": "Yetkisiz erişim"}), 401
+        return jsonify({
+            "hata": "Yetkisiz erişim"
+        }), 401
 
     conn = db()
 
@@ -172,7 +212,10 @@ def randevu_sil(randevu_id):
 
     if not kayit:
         conn.close()
-        return jsonify({"hata": "Randevu bulunamadı"}), 404
+
+        return jsonify({
+            "hata": "Randevu bulunamadı"
+        }), 404
 
     conn.execute(
         "DELETE FROM randevular WHERE id = ?",
@@ -182,15 +225,22 @@ def randevu_sil(randevu_id):
     conn.commit()
     conn.close()
 
-    return jsonify({"mesaj": "Randevu silindi"})
+    return jsonify({
+        "mesaj": "Randevu silindi"
+    })
 
 
 @app.route("/cikis")
 def cikis():
+
     session.clear()
+
     return redirect("/giris")
 
 
 if __name__ == "__main__":
-    tablo_olustur()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
