@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Berber Yönetim Girişi</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f3f3f3;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.card{
+    width:90%;
+    max-width:400px;
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 8px 25px #0002;
+}
+
+.logo{
+    text-align:center;
+    font-size:50px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:5px;
+}
+
+p{
+    text-align:center;
+    color:#666;
+    margin-bottom:25px;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    margin-top:18px;
+    margin-bottom:7px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    margin-top:22px;
+    padding:15px;
+    border:0;
+    border-radius:10px;
+    background:#181818;
+    color:white;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:.9;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="logo">💈</div>
+
+<h1>Yönetim Girişi</h1>
+<p>Berber yönetim paneline giriş yapın</p>
+
+<form method="POST" action="/giris">
+
+<label>Kullanıcı Adı</label>
+<input
+    type="text"
+    name="kullanici"
+    placeholder="Kullanıcı adınızı yazın"
+    required
+>
+
+<label>Şifre</label>
+<input
+    type="password"
+    name="sifre"
+    placeholder="Şifrenizi yazın"
+    required
+>
+
+<button type="submit">Giriş Yap</button>
+
+</form>
+
+</div>
+
+</body>
+</html>
