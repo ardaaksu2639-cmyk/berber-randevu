@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Deneme Berber - Randevu</title>
+<title>Online Randevu</title>
 
 <style>
 *{
@@ -156,10 +156,6 @@ input{
         padding:18px;
     }
 
-    .times{
-        grid-template-columns:repeat(3,1fr);
-    }
-
     .time{
         font-size:14px;
     }
@@ -173,43 +169,23 @@ input{
 
 <div class="hero">
     <div style="font-size:48px">💈</div>
-    <h1>Deneme Berber</h1>
-    <p>Online Randevu</p>
+    <h1 id="dukkanAdi">Yükleniyor...</h1>
+    <p id="altBaslik">Online Randevu</p>
 </div>
 
 <div class="card">
 
 <label>Hizmet</label>
-<select id="service">
-    <option>Saç Kesimi — 400 ₺</option>
-    <option>Sakal Tıraşı — 200 ₺</option>
-    <option>Saç + Sakal — 550 ₺</option>
-    <option>Çocuk Saç Kesimi — 300 ₺</option>
-</select>
+<select id="service"></select>
 
 <label>Berber</label>
-<select id="barber">
-    <option>Ahmet</option>
-    <option>Mehmet</option>
-    <option>Farketmez</option>
-</select>
+<select id="barber"></select>
 
 <label>Tarih</label>
 <input id="date" type="date">
 
 <label>Saat</label>
-
-<div class="times">
-    <button type="button" class="time" data-saat="10:00">10:00</button>
-    <button type="button" class="time" data-saat="11:00">11:00</button>
-    <button type="button" class="time" data-saat="12:00">12:00</button>
-    <button type="button" class="time" data-saat="14:00">14:00</button>
-    <button type="button" class="time" data-saat="15:00">15:00</button>
-    <button type="button" class="time" data-saat="16:00">16:00</button>
-    <button type="button" class="time" data-saat="17:00">17:00</button>
-    <button type="button" class="time" data-saat="18:00">18:00</button>
-    <button type="button" class="time" data-saat="19:00">19:00</button>
-</div>
+<div class="times" id="saatler"></div>
 
 <label>Ad Soyad</label>
 <input id="name" placeholder="Adınızı ve soyadınızı yazın">
@@ -224,7 +200,7 @@ input{
 <div id="result"></div>
 
 <div class="note">
-    Randevunuz güvenli şekilde sisteme kaydedilir.
+    Randevunuz sisteme kaydedilir.
 </div>
 
 </div>
@@ -234,40 +210,146 @@ input{
 
 let secilenSaat = "";
 
-const bugun = new Date().toISOString().split("T")[0];
-document.getElementById("date").min = bugun;
+
+function bugununTarihi(){
+
+    const simdi = new Date();
+
+    const yil = simdi.getFullYear();
+    const ay = String(simdi.getMonth() + 1).padStart(2, "0");
+    const gun = String(simdi.getDate()).padStart(2, "0");
+
+    return `${yil}-${ay}-${gun}`;
+}
 
 
-document.querySelectorAll(".time").forEach(btn => {
+document.getElementById("date").min = bugununTarihi();
 
-    btn.addEventListener("click", function(){
 
-        if(btn.disabled){
-            return;
+async function ayarlariYukle(){
+
+    try{
+
+        const cevap = await fetch("/api/ayarlar");
+        const ayarlar = await cevap.json();
+
+        if(!cevap.ok){
+            throw new Error("Ayarlar yüklenemedi");
         }
 
-        document.querySelectorAll(".time").forEach(x => {
-            x.classList.remove("active");
+
+        document.getElementById("dukkanAdi").textContent =
+            ayarlar.dukkan_adi;
+
+        document.getElementById("altBaslik").textContent =
+            ayarlar.alt_baslik;
+
+        document.title =
+            ayarlar.dukkan_adi + " - Randevu";
+
+
+        const hizmetSec =
+            document.getElementById("service");
+
+        hizmetSec.innerHTML = "";
+
+        ayarlar.hizmetler.forEach(hizmet => {
+
+            const secenek =
+                document.createElement("option");
+
+            secenek.value =
+                `${hizmet.ad} — ${hizmet.fiyat} ₺`;
+
+            secenek.textContent =
+                `${hizmet.ad} — ${hizmet.fiyat} ₺`;
+
+            hizmetSec.appendChild(secenek);
+
         });
 
-        btn.classList.add("active");
-        secilenSaat = btn.dataset.saat;
-    });
 
-});
+        const berberSec =
+            document.getElementById("barber");
+
+        berberSec.innerHTML = "";
+
+        ayarlar.berberler.forEach(berber => {
+
+            const secenek =
+                document.createElement("option");
+
+            secenek.value = berber;
+            secenek.textContent = berber;
+
+            berberSec.appendChild(secenek);
+
+        });
+
+
+        const saatKutusu =
+            document.getElementById("saatler");
+
+        saatKutusu.innerHTML = "";
+
+        ayarlar.saatler.forEach(saat => {
+
+            const buton =
+                document.createElement("button");
+
+            buton.type = "button";
+            buton.className = "time";
+            buton.dataset.saat = saat;
+            buton.textContent = saat;
+
+            buton.addEventListener("click", function(){
+
+                if(buton.disabled){
+                    return;
+                }
+
+                document.querySelectorAll(".time").forEach(x => {
+                    x.classList.remove("active");
+                });
+
+                buton.classList.add("active");
+
+                secilenSaat = buton.dataset.saat;
+            });
+
+            saatKutusu.appendChild(buton);
+
+        });
+
+
+    }catch(hata){
+
+        console.error(hata);
+
+        alert(
+            "Dükkan ayarları yüklenemedi."
+        );
+
+    }
+}
 
 
 async function doluSaatleriGetir(){
 
-    const berber = document.getElementById("barber").value;
-    const tarih = document.getElementById("date").value;
+    const berber =
+        document.getElementById("barber").value;
+
+    const tarih =
+        document.getElementById("date").value;
 
     secilenSaat = "";
 
     document.querySelectorAll(".time").forEach(btn => {
+
         btn.disabled = false;
         btn.classList.remove("active");
         btn.textContent = btn.dataset.saat;
+
     });
 
     if(!berber || !tarih){
@@ -283,13 +365,20 @@ async function doluSaatleriGetir(){
             encodeURIComponent(tarih)
         );
 
-        const doluSaatler = await cevap.json();
+        const doluSaatler =
+            await cevap.json();
 
         document.querySelectorAll(".time").forEach(btn => {
 
-            if(doluSaatler.includes(btn.dataset.saat)){
+            if(
+                doluSaatler.includes(
+                    btn.dataset.saat
+                )
+            ){
                 btn.disabled = true;
-                btn.textContent = btn.dataset.saat + " - DOLU";
+
+                btn.textContent =
+                    btn.dataset.saat + " - DOLU";
             }
 
         });
@@ -305,12 +394,17 @@ async function doluSaatleriGetir(){
 }
 
 
-document.getElementById("barber").addEventListener(
+document
+.getElementById("barber")
+.addEventListener(
     "change",
     doluSaatleriGetir
 );
 
-document.getElementById("date").addEventListener(
+
+document
+.getElementById("date")
+.addEventListener(
     "change",
     doluSaatleriGetir
 );
@@ -319,19 +413,25 @@ document.getElementById("date").addEventListener(
 async function book(){
 
     const ad =
-        document.getElementById("name").value.trim();
+        document.getElementById("name")
+        .value.trim();
 
     const telefon =
-        document.getElementById("phone").value.trim();
+        document.getElementById("phone")
+        .value.trim();
 
     const berber =
-        document.getElementById("barber").value;
+        document.getElementById("barber")
+        .value;
 
     const hizmet =
-        document.getElementById("service").value;
+        document.getElementById("service")
+        .value;
 
     const tarih =
-        document.getElementById("date").value;
+        document.getElementById("date")
+        .value;
+
 
     if(
         !ad ||
@@ -341,11 +441,17 @@ async function book(){
         !tarih ||
         !secilenSaat
     ){
-        alert("Lütfen tüm bilgileri doldurun.");
+        alert(
+            "Lütfen tüm bilgileri doldurun."
+        );
+
         return;
     }
 
-    const randevuSaati = secilenSaat;
+
+    const randevuSaati =
+        secilenSaat;
+
 
     try{
 
@@ -369,7 +475,10 @@ async function book(){
             }
         );
 
-        const veri = await cevap.json();
+
+        const veri =
+            await cevap.json();
+
 
         if(!cevap.ok){
 
@@ -379,13 +488,17 @@ async function book(){
             );
 
             await doluSaatleriGetir();
+
             return;
         }
+
 
         const sonuc =
             document.getElementById("result");
 
+
         sonuc.style.display = "block";
+
 
         sonuc.innerHTML = `
             <div class="onay-baslik">
@@ -429,11 +542,18 @@ async function book(){
             </div>
         `;
 
+
         sonuc.scrollIntoView({
             behavior:"smooth"
         });
 
+
+        document.getElementById("name").value = "";
+        document.getElementById("phone").value = "";
+
+
         await doluSaatleriGetir();
+
 
     }catch(hata){
 
@@ -445,6 +565,9 @@ async function book(){
 
     }
 }
+
+
+ayarlariYukle();
 
 </script>
 
